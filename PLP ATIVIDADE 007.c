@@ -1,65 +1,123 @@
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
-#define MAX_NODES 100
+// constante repesenta o tamanho da tabela
+#define M 9
 
-struct Node {
-    char name[50];
-    char type[50];
-    int value;
-};
+// estrutura Pessoa com nome e uma matrícula
+typedef struct{
+    int matricula;
+    char nome[50];
+}Pessoa;
 
-struct HashTable {
-    struct Node nodes[MAX_NODES];
-    int size;
-};
+// nossa tabela hash do tipo Pessoa
+Pessoa tabelaHash[M];
 
-void print_str(char *str) {
-    printf("%s", str);
+// inicializa nossa tabela com o valor de codigo -1
+void inicializarTabela(){
+    int i;
+    for(i = 0; i < M; i++)
+        tabelaHash[i].matricula = -1;
 }
 
-int hash_function(char *str) {
-    int sum = 0;
-    for (int i = 0; i < strlen(str); i++) {
-        sum += str[i];
+// função de espalhamento (resto da divisão da chave por M)
+int gerarCodigoHash(int chave){
+    return chave % M;
+}
+
+// função para ler e retornar uma pessoa
+Pessoa lerPessoa(){
+    Pessoa p;
+    printf("Digite a Matricula: ");
+    scanf("%d", &p.matricula);
+    scanf("%*c");
+    printf("Digite o nome: ");
+    fgets(p.nome, 50, stdin);
+    return p;
+}
+
+// inserir uma pessoa na tabela
+void inserir(){
+    Pessoa pes = lerPessoa();
+    int indice = gerarCodigoHash(pes.matricula);
+    while(tabelaHash[indice].matricula != -1)
+        indice = gerarCodigoHash(indice + 1);
+    tabelaHash[indice] = pes;
+}
+
+Pessoa* buscar(int chave){
+    int indice = gerarCodigoHash(chave);
+    while(tabelaHash[indice].matricula != -1){
+        if(tabelaHash[indice].matricula == chave)
+            return &tabelaHash[indice];
+        else
+            indice = gerarCodigoHash(indice + 1);
     }
-    return sum % MAX_NODES;
+    return NULL;
 }
 
-void add_node(struct HashTable *table, char *name, char *type, int value) {
-    int index = hash_function(name);
-    strcpy(table->nodes[index].name, name);
-    strcpy(table->nodes[index].type, type);
-    table->nodes[index].value = value;
-    table->size++;
-}
-
-int find_node(struct HashTable *table, char *name) {
-    int index = hash_function(name);
-    if (strcmp(table->nodes[index].name, name) == 0) {
-        return index;
+void imprimir(){
+    int i;
+    printf("\n------------------------TABELA---------------------------\n");
+    for(i = 0; i < M; i++){
+        if(tabelaHash[i].matricula != -1)
+            printf("%2d = %3d \t %s", i, tabelaHash[i].matricula, tabelaHash[i].nome);
+        else
+            printf("%2d =\n", i);
     }
-    return -1;
+    printf("\n----------------------------------------------------------\n");
+}
+
+void alterar(int chave) {
+    Pessoa *p = buscar(chave);
+    if (p) {
+        printf("Digite os novos dados: \n");
+        *p = lerPessoa();
+    } else {
+        printf("Matrícula não encontrada!\n");
+    }
 }
 
 int main() {
-    int b = 2, c = 3;
-    int a = b + c;
+    int op, chave;
+    Pessoa *p;
 
-    print_str("Valor de a: ");
-    printf("%d\n", a);
+    inicializarTabela();
 
-    struct HashTable table = {{{0}}, 0};
+    do{
+       printf("1 - Inserir\n2 - Buscar\n3 - Imprimir\n4 - Alterar\n0 - Sair\n");
+        scanf("%d", &op);
 
-    add_node(&table, "var1", "int", 10);
-    add_node(&table, "var2", "float", 20);
+        switch(op){
+        case 0:
+            printf("Saindo...\n");
+            break;
+        case 1:
+            inserir();
+            break;
+        case 2:
+            printf("Digite a matricula a ser buscada: ");
+            scanf("%d", &chave);
+            p = buscar(chave);
 
-    int index = find_node(&table, "var1");
-    if (index >= 0) {
-        printf("Valor de var1: %d\n", table.nodes[index].value);
-    } else {
-        print_str("N�o foi poss�vel encontrar var1\n");
-    }
+            if(p)
+                printf("\n\tMatricula: %d \tNome: %s\n", p->matricula, p->nome);
+            else
+                printf("\nMatricula nao encontrada!\n");
+            break;
+        case 3:
+            imprimir();
+            break;
+        case 4:
+        printf("Digite a matricula a ser alterada: ");
+        scanf("%d", &chave);
+        alterar(chave);
+            break;
+        default:
+            printf("Opcao invalida!\n");
+        }
+
+    }while(op != 0);
 
     return 0;
 }
