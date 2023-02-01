@@ -10,7 +10,7 @@ typedef struct{
     char nome[50];
 }Pessoa;
 
-// nossa tabela hash do tipo Pessoa
+// Tabela hash do tipo Pessoa
 Pessoa tabelaHash[M];
 
 // inicializa nossa tabela com o valor de codigo -1
@@ -20,12 +20,12 @@ void inicializarTabela(){
         tabelaHash[i].matricula = -1;
 }
 
-// função de espalhamento (resto da divisão da chave por M)
+// função de espalhamento
 int gerarCodigoHash(int chave){
     return chave % M;
 }
 
-// função para ler e retornar uma pessoa
+// função para ler e retornar
 Pessoa lerPessoa(){
     Pessoa p;
     printf("Digite a Matricula: ");
@@ -36,7 +36,7 @@ Pessoa lerPessoa(){
     return p;
 }
 
-// inserir uma pessoa na tabela
+// inserir dados na tabela
 void inserir(){
     Pessoa pes = lerPessoa();
     int indice = gerarCodigoHash(pes.matricula);
@@ -44,7 +44,7 @@ void inserir(){
         indice = gerarCodigoHash(indice + 1);
     tabelaHash[indice] = pes;
 }
-
+// Busca
 Pessoa* buscar(int chave){
     int indice = gerarCodigoHash(chave);
     while(tabelaHash[indice].matricula != -1){
@@ -55,7 +55,18 @@ Pessoa* buscar(int chave){
     }
     return NULL;
 }
+// Altera as Informações
+void alterar(int chave) {
+    Pessoa *p = buscar(chave);
+    if (p) {
+        printf("Digite os novos dados: \n");
+        *p = lerPessoa();
+    } else {
+        printf("Matrícula não encontrada!\n");
+    }
+}
 
+// Imprime a Tabela
 void imprimir(){
     int i;
     printf("\n------------------------TABELA---------------------------\n");
@@ -67,17 +78,7 @@ void imprimir(){
     }
     printf("\n----------------------------------------------------------\n");
 }
-
-void alterar(int chave) {
-    Pessoa *p = buscar(chave);
-    if (p) {
-        printf("Digite os novos dados: \n");
-        *p = lerPessoa();
-    } else {
-        printf("Matrícula não encontrada!\n");
-    }
-}
-
+// Função do Menu
 int main() {
     int op, chave;
     Pessoa *p;
@@ -86,6 +87,7 @@ int main() {
 
     do{
        printf("1 - Inserir\n2 - Buscar\n3 - Imprimir\n4 - Alterar\n0 - Sair\n");
+
         scanf("%d", &op);
 
         switch(op){
@@ -108,16 +110,17 @@ int main() {
         case 3:
             imprimir();
             break;
-        case 4:
-        printf("Digite a matricula a ser alterada: ");
-        scanf("%d", &chave);
-        alterar(chave);
-            break;
         default:
             printf("Opcao invalida!\n");
-        }
-
+        
+        case 4:
+          printf("Digite a matricula a ser alterada: ");
+          scanf("%d", &chave);
+          alterar(chave);
+          break;
+          }
     }while(op != 0);
 
     return 0;
+}
 }
